@@ -1,0 +1,93 @@
+version: "3.9"
+
+services:
+  # ── Base de datos MySQL ──────────────────────────────────────
+  database:
+    image: mysql:8.0
+    container_name: proyecto_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_NAME:-proyecto_db}
+      MYSQL_USER: ${DB_USER:-appuser}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-apppassword}
+    # En producción (AWS), este puerto NO debe mapearse para mantener la DB privada
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql # Persistencia crítica
+      - ./database/01_creacion_base_datos.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    networks:
+      - backend_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${DB_USER:-appuser}", "-p${DB_PASSWORD:-apppassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ── Backend Node.js / Express ────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: proyecto_backend
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      NODE_ENV: production # Cambiado a production para pruebas reales
+      DB_HOST: database
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-proyecto_db}
+      DB_USER: ${DB_USER:-appuser}
+      DB_PASSWORD: ${DB_PASSWORD:-apppassword}
+    ports:
+      - "3000:3000"
+    networks:
+      - backend_net
+      - frontend_net
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      # Se actualizó para usar la ruta específica del backend
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/usuarios || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ── Frontend Flask ───────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: proyecto_frontend
+    restart: unless-stopped
+    environment:
+      PORT: 5000
+      DEBUG: "False"
+      SECRET_KEY: ${SECRET_KEY:-cambia_esto_en_produccion}
+      BACKEND_URL: http://backend:3000
+    ports:
+      - "80:5000" # Mapeo al puerto 80 para acceso web estándar
+    networks:
+      - frontend_net
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5000/')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+
+# ── Configuración de Redes (Mínimo Privilegio) ────────────────
+networks:
+  frontend_net: # Comunicación Front <-> Back
+  backend_net:  # Comunicación Back <-> DB (Aislada del Front)
+
+# ── Volúmenes (Persistencia) ──────────────────────────────────
+volumes:
+  mysql_data: # Named volume gestionado por Docker
