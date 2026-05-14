@@ -1,27 +1,25 @@
 services:
-  # ── Servicio Frontend  ────────────────
+  # ── FRONTEND (Python / Flask) ──────────────────────────────
   frontend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: proyecto_frontend
     restart: unless-stopped
 
-    # ── Variables de entorno ───────────────────────────────────
     environment:
-      PORT: 5000
-      DEBUG: "False"
-
-      # URL interna del backend dentro de Docker
+      PORT:        ${PORT:-5000}
+      DEBUG:       ${DEBUG:-False}
       BACKEND_URL: http://proyecto_backend:3000
+      SECRET_KEY:  ${SECRET_KEY}
 
-    # ── Exposición al navegador ────────────────────────────────
     ports:
-      - "80:5000"
+      - "${PORT:-5000}:5000"
 
-    # ── Red compartida con backend ─────────────────────────────
     networks:
-      - innovatech-net
+      - proyecto_net
 
-# ── Red externa compartida ─────────────────────────────────────
 networks:
-  innovatech-net:
+  # Se une a la red ya creada por el backend — NO la crea de nuevo
+  proyecto_net:
     external: true

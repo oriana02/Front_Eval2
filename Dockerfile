@@ -1,45 +1,56 @@
-# ── Etapa 1: dependencias ─────────────────────────────────────
+# ─────────────────────────────────────────────
+# Etapa 1: build / instalación de dependencias
+# ─────────────────────────────────────────────
 FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-# Instalar dependencias de compilación (necesarias para algunos paquetes)
-RUN apt-get update && apt-get install -y --no-install-recommends gcc && \
-    rm -rf /var/lib/apt/lists/*
+# Evitar archivos .pyc y buffering en logs
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Instalar dependencias del sistema necesarias para compilar wheels
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        gcc \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt ./
 
-# Instalar en directorio local para copiar luego
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+# Instalar en directorio local para copiarlo limpiamente
+RUN pip install --upgrade pip \
+    && pip install --prefix=/install -r requirements.txt
 
-# ── Etapa 2: imagen final ──────────────────────────────────────
+# ─────────────────────────────────────────────
+# Etapa 2: imagen final
+# ─────────────────────────────────────────────
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Crear usuario no-root
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Usuario sin privilegios
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 
-# Copiar paquetes instalados
+# Copiar librerías instaladas desde el builder
 COPY --from=builder /install /usr/local
 
-# Copiar código fuente y plantillas
+# Copiar código fuente
 COPY app.py ./
+COPY requirements.txt ./
 COPY templates/ ./templates/
-# Si tienes archivos estáticos descomenta la línea siguiente:
-# COPY static/ ./static/
 
+# Establecer propietario
 RUN chown -R appuser:appgroup /app
 USER appuser
 
+# Puerto que expone Flask
 EXPOSE 5000
 
-ENV PORT=5000 \
-    DEBUG=False \
-    BACKEND_URL=http://backend:3000
+# Variables de entorno por defecto
+ENV FLASK_ENV=production \
+    PORT=5000
 
-# Health check
-HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/')" || exit 1
-
+# Comando de inicio
 CMD ["python", "app.py"]
