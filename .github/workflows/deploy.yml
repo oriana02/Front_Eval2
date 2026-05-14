@@ -48,7 +48,7 @@ jobs:
               --restart always \
               -e PORT=5000 \
               -e DEBUG=False \
-              -e BACKEND_URL=http://10.0.136.205:3000 \
+              -e BACKEND_URL= http://${{ secrets.EC2_BACKEND_PRIVATE_IP }}:3000 \
               -e SECRET_KEY=${{ secrets.SECRET_KEY }} \
               ${{ secrets.DOCKERHUB_USERNAME }}/frontend-eval2:latest
 
