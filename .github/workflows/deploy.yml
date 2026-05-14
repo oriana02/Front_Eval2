@@ -32,6 +32,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+
           script: |
             echo "Descargando imagen actualizada..."
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/frontend-eval2:latest
@@ -45,10 +46,9 @@ jobs:
               --name proyecto_frontend \
               -p 5000:5000 \
               --restart always \
-              --network proyecto_net \
               -e PORT=5000 \
               -e DEBUG=False \
-              -e BACKEND_URL=http://proyecto_backend:3000 \
+              -e BACKEND_URL=http://10.0.136.205:3000 \
               -e SECRET_KEY=${{ secrets.SECRET_KEY }} \
               ${{ secrets.DOCKERHUB_USERNAME }}/frontend-eval2:latest
 
