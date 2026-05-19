@@ -1,157 +1,166 @@
-{% extends "base.html" %}
-
-{% block title %}Lista de Usuarios{% endblock %}
-
-{% block page_header %}
+{% extends "base.html" %} {% block title %}Lista de Usuarios{% endblock %} {%
+block page_header %}
 <h1 class="display-4 text-center">
-    <i class="fas fa-users text-primary"></i> Lista de Usuarios
+  <i class="fas fa-users text-primary"></i> Lista de Usuarios
 </h1>
 <p class="text-center text-muted">Gestión completa de usuarios del sistema</p>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <!-- Botón para crear nuevo usuario -->
 <div class="row mb-4">
-    <div class="col-12 text-center">
-        <a href="{{ url_for('crear_usuario_form') }}" class="btn btn-primary btn-lg">
-            <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
-        </a>
-    </div>
+  <div class="col-12 text-center">
+    <a
+      href="{{ url_for('crear_usuario_form') }}"
+      class="btn btn-primary btn-lg"
+    >
+      <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
+    </a>
+  </div>
 </div>
 
 <!-- Lista de usuarios -->
 <div class="row">
-    <div class="col-12">
-        {% if usuarios %}
-            <div class="card">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-list"></i> Usuarios Registrados ({{ usuarios|length }})
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <!-- Tabla de usuarios -->
-                    <div class="table-responsive">
-                        <table class="table table-hover table-striped">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Nombre</th>
-                                    <th>Email</th>
-                                    <th>Edad</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for usuario in usuarios %}
-                                <tr>
-                                    <td>
-                                        <span class="badge bg-secondary">{{ usuario.id }}</span>
-                                    </td>
-                                    <td>
-                                        <i class="fas fa-user text-primary"></i>
-                                        {{ usuario.nombre }}
-                                    </td>
-                                    <td>
-                                        <i class="fas fa-envelope text-info"></i>
-                                        {{ usuario.email }}
-                                    </td>
-                                    <td>
-                                        {% if usuario.edad %}
-                                            <span class="badge bg-success">{{ usuario.edad }} años</span>
-                                        {% else %}
-                                            <span class="text-muted">No especificada</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <!-- Botones de acción -->
-                                        <div class="btn-group" role="group">
-                                            <!-- Botón editar -->
-                                            <a href="{{ url_for('editar_usuario_form', usuario_id=usuario.id) }}" 
-                                               class="btn btn-warning btn-sm" 
-                                               title="Editar usuario">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            
-                                            <!-- Botón eliminar -->
-                                            <form method="POST" 
-                                                  action="{{ url_for('eliminar_usuario', usuario_id=usuario.id) }}" 
-                                                  style="display: inline;"
-                                                  onsubmit="return confirm('¿Estás seguro de que deseas eliminar este usuario?')">
-                                                <button type="submit" 
-                                                        class="btn btn-danger btn-sm" 
-                                                        title="Eliminar usuario">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        {% else %}
-            <!-- Mensaje cuando no hay usuarios -->
-            <div class="card">
-                <div class="card-body text-center py-5">
-                    <i class="fas fa-users-slash fa-4x text-muted mb-3"></i>
-                    <h4 class="text-muted">No hay usuarios registrados</h4>
-                    <p class="text-muted">
-                        Comienza creando tu primer usuario usando el botón de arriba.
-                    </p>
-                    <a href="{{ url_for('crear_usuario_form') }}" class="btn btn-primary">
-                        <i class="fas fa-user-plus"></i> Crear Primer Usuario
+  <div class="col-12">
+    {% if usuarios %}
+    <div class="card">
+      <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-list"></i> Usuarios Registrados ({{ usuarios|length
+          }})
+        </h5>
+      </div>
+      <div class="card-body">
+        <!-- Tabla de usuarios -->
+        <div class="table-responsive">
+          <table class="table table-hover table-striped">
+            <thead class="table-dark">
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Edad</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for usuario in usuarios %}
+              <tr>
+                <td>
+                  <span class="badge bg-secondary">{{ usuario.id }}</span>
+                </td>
+                <td>
+                  <i class="fas fa-user text-primary"></i>
+                  {{ usuario.nombre }}
+                </td>
+                <td>
+                  <i class="fas fa-envelope text-info"></i>
+                  {{ usuario.email }}
+                </td>
+                <td>
+                  {% if usuario.edad %}
+                  <span class="badge bg-success">{{ usuario.edad }} años</span>
+                  {% else %}
+                  <span class="text-muted">No especificada</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <!-- Botones de acción -->
+                  <div class="btn-group" role="group">
+                    <!-- Botón editar -->
+                    <a
+                      href="{{ url_for('editar_usuario_form', usuario_id=usuario.id) }}"
+                      class="btn btn-warning btn-sm"
+                      title="Editar usuario"
+                    >
+                      <i class="fas fa-edit"></i>
                     </a>
-                </div>
-            </div>
-        {% endif %}
+
+                    <!-- Botón eliminar -->
+                    <form
+                      method="POST"
+                      action="{{ url_for('eliminar_usuario', usuario_id=usuario.id) }}"
+                      style="display: inline"
+                      onsubmit="
+                        return confirm(
+                          '¿Estás seguro de que deseas eliminar este usuario?',
+                        );
+                      "
+                    >
+                      <button
+                        type="submit"
+                        class="btn btn-danger btn-sm"
+                        title="Eliminar usuario"
+                      >
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
+    {% else %}
+    <!-- Mensaje cuando no hay usuarios -->
+    <div class="card">
+      <div class="card-body text-center py-5">
+        <i class="fas fa-users-slash fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">No hay usuarios registrados</h4>
+        <p class="text-muted">
+          Comienza creando tu primer usuario usando el botón de arriba.
+        </p>
+        <a href="{{ url_for('crear_usuario_form') }}" class="btn btn-primary">
+          <i class="fas fa-user-plus"></i> Crear Primer Usuario
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
 </div>
 
 <!-- Tarjeta de información -->
 <div class="row mt-4">
-    <div class="col-12">
-        <div class="card bg-light">
-            <div class="card-body">
-                <h6 class="card-title">
-                    <i class="fas fa-info-circle text-info"></i> Información del Sistema
-                </h6>
-                <div class="row">
-                    <div class="col-md-4">
-                        <small class="text-muted">
-                            <strong>Total de usuarios:</strong> {{ usuarios|length }}
-                        </small>
-                    </div>
-                    <div class="col-md-4">
-                        <small class="text-muted">
-                            <strong>Backend API:</strong> {{ config.BACKEND_URL or 'http://localhost:3000' }}
-                        </small>
-                    </div>
-                    <div class="col-md-4">
-                        <small class="text-muted">
-                            <strong>Estado:</strong> 
-                            <span class="badge bg-success">Activo</span>
-                        </small>
-                    </div>
-                </div>
-            </div>
+  <div class="col-12">
+    <div class="card bg-light">
+      <div class="card-body">
+        <h6 class="card-title">
+          <i class="fas fa-info-circle text-info"></i> Información del Sistema
+        </h6>
+        <div class="row">
+          <div class="col-md-4">
+            <small class="text-muted">
+              <strong>Total de usuarios:</strong> {{ usuarios|length }}
+            </small>
+          </div>
+          <div class="col-md-4">
+            <small class="text-muted">
+              <strong>Backend API:</strong> {{ config.BACKEND_URL }}
+            </small>
+          </div>
+          <div class="col-md-4">
+            <small class="text-muted">
+              <strong>Estado:</strong>
+              <span class="badge bg-success">Activo</span>
+            </small>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script>
-    // Confirmación personalizada para eliminación
-    document.addEventListener('DOMContentLoaded', function() {
-        // Agregar tooltips a los botones
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        });
+  // Confirmación personalizada para eliminación
+  document.addEventListener("DOMContentLoaded", function () {
+    // Agregar tooltips a los botones
+    var tooltipTriggerList = [].slice.call(
+      document.querySelectorAll("[title]"),
+    );
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
     });
+  });
 </script>
 {% endblock %}
