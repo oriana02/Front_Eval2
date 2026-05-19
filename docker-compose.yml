@@ -23,3 +23,7 @@ networks:
   # Se une a la red ya creada por el backend — NO la crea de nuevo
   proyecto_net:
     external: true
+
+
+
+    
