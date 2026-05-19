@@ -53,3 +53,6 @@ jobs:
               ${{ secrets.DOCKERHUB_USERNAME }}/frontend-eval2:latest
 
             echo "Deploy frontend completado"
+
+
+            
